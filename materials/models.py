@@ -1,10 +1,13 @@
 from django.db import models
 
+from users.models import User
+
 
 class Course(models.Model):
     title = models.CharField(max_length=200)
     preview = models.ImageField(upload_to="courses/previews/", blank=True, null=True)
     description = models.TextField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses")
 
     def __str__(self):
         return self.title
@@ -17,6 +20,7 @@ class Lesson(models.Model):
     preview = models.ImageField(upload_to="lessons/previews/", blank=True, null=True)
     description = models.TextField()
     video_url = models.URLField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lessons")
 
     def __str__(self):
         return self.title
