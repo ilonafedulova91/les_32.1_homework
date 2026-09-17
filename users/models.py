@@ -1,4 +1,5 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
 from django.db import models
 
 
@@ -27,7 +28,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
-    phone_number = models.CharField(max_length=11, unique=True, blank=True)
+    phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to="users/avatars/", null=True, blank=True)
 
