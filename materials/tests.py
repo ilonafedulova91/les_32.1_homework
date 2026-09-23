@@ -211,30 +211,26 @@ class SubscriptionTests(APITestCase):
 
         self.client.force_authenticate(user=self.user)
 
-    def test_subscription_toggle(self):
-        url = reverse("subscription")
+    def test_subscription_create(self):
+        url = reverse('subscription')
 
-        response = self.client.post(
-            url,
-            data={"course_id": self.course.id},
-            format="json",
-        )
+        response = self.client.post(url, {'course_id': self.course.id}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
+        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
+
+    def test_subscription_delete(self):
+        Subscription.objects.create(
+            user=self.user,
+            course=self.course,
         )
 
-        response = self.client.post(
-            url,
-            data={"course_id": self.course.id},
-            format="json",
-        )
+        url = reverse('subscription')
+
+        response = self.client.post(url, {'course_id': self.course.id}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_subscription_invalid_course(self):
         url = reverse('subscription')
@@ -247,3 +243,13 @@ class SubscriptionTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Subscription.objects.count(), 0)
+
+    def test_unauthenticated_user_cannot_toggle_subscription(self):
+        self.client.force_authenticate(user=None)
+
+        url = reverse('subscription')
+
+        response = self.client.post(url, {'course_id': self.course.id}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
